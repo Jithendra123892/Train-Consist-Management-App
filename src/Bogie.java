@@ -13,6 +13,6 @@ public class Bogie {
 
     @Override
     public String toString() {
-        return name + " (Capacity: " + capacity + " seats)";
+        return "Bogie [Name: " + name + ", Capacity: " + capacity + " seats]";
     }
 }
