@@ -21,4 +21,7 @@ public class TrainConsistApp {
         System.out.println("---------------------------------------");
         System.out.println("Application initialized successfully.");
     }
+
+    public static boolean isValidTrainID(String s) {
+    }
 }

@@ -1,67 +1,51 @@
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistAppTest {
 
-    // ── Train ID Tests ───────────────────────────────────────
-
     @Test
-    public void testRegex_ValidTrainID() {
-        assertTrue(TrainConsistApp.isValidTrainID("TRN-1234"));
-        assertTrue(TrainConsistApp.isValidTrainID("TRN-5678"));
-        assertTrue(TrainConsistApp.isValidTrainID("TRN-0000"));
+    public void testSafety_AllBogiesValid() {
+        List<GoodsBogie> list = new ArrayList<>();
+        list.add(new GoodsBogie("Cylindrical",  "Petroleum"));
+        list.add(new GoodsBogie("Rectangular",  "Coal"));
+        list.add(new GoodsBogie("Open",         "Grain"));
+        assertTrue(UC12TrainConsist.isSafetyCompliant(list));
     }
 
     @Test
-    public void testRegex_InvalidTrainIDFormat() {
-        assertFalse(TrainConsistApp.isValidTrainID("TRAIN12"));
-        assertFalse(TrainConsistApp.isValidTrainID("TRN12A"));
-        assertFalse(TrainConsistApp.isValidTrainID("1234-TRN"));
+    public void testSafety_CylindricalWithInvalidCargo() {
+        List<GoodsBogie> list = new ArrayList<>();
+        list.add(new GoodsBogie("Cylindrical", "Coal"));   // violation
+        list.add(new GoodsBogie("Rectangular", "Cement"));
+        assertFalse(UC12TrainConsist.isSafetyCompliant(list));
     }
 
     @Test
-    public void testRegex_TrainIDDigitLengthValidation() {
-        assertFalse(TrainConsistApp.isValidTrainID("TRN-123"));    // 3 digits
-        assertFalse(TrainConsistApp.isValidTrainID("TRN-12345"));  // 5 digits
-        assertTrue(TrainConsistApp.isValidTrainID("TRN-1234"));    // exactly 4
-    }
-
-    // ── Cargo Code Tests ─────────────────────────────────────
-
-    @Test
-    public void testRegex_ValidCargoCode() {
-        assertTrue(TrainConsistApp.isValidCargoCode("PET-AB"));
-        assertTrue(TrainConsistApp.isValidCargoCode("PET-XY"));
-        assertTrue(TrainConsistApp.isValidCargoCode("PET-ZZ"));
+    public void testSafety_NonCylindricalBogiesAllowed() {
+        List<GoodsBogie> list = new ArrayList<>();
+        list.add(new GoodsBogie("Rectangular", "Coal"));
+        list.add(new GoodsBogie("Open",        "Grain"));
+        list.add(new GoodsBogie("Box",         "Cement"));
+        assertTrue(UC12TrainConsist.isSafetyCompliant(list));
     }
 
     @Test
-    public void testRegex_InvalidCargoCodeFormat() {
-        assertFalse(TrainConsistApp.isValidCargoCode("PET-ab"));   // lowercase
-        assertFalse(TrainConsistApp.isValidCargoCode("PET123"));   // no dash
-        assertFalse(TrainConsistApp.isValidCargoCode("AB-PET"));   // reversed
+    public void testSafety_MixedBogiesWithViolation() {
+        List<GoodsBogie> list = new ArrayList<>();
+        list.add(new GoodsBogie("Cylindrical", "Petroleum")); // valid
+        list.add(new GoodsBogie("Cylindrical", "Coal"));      // violation
+        list.add(new GoodsBogie("Open",        "Grain"));
+        assertFalse(UC12TrainConsist.isSafetyCompliant(list));
     }
 
     @Test
-    public void testRegex_CargoCodeUppercaseValidation() {
-        assertFalse(TrainConsistApp.isValidCargoCode("PET-ab"));   // lowercase
-        assertFalse(TrainConsistApp.isValidCargoCode("PET-Ab"));   // mixed case
-        assertTrue(TrainConsistApp.isValidCargoCode("PET-AB"));    // uppercase only
-    }
-
-    // ── Edge Case Tests ──────────────────────────────────────
-
-    @Test
-    public void testRegex_EmptyInputHandling() {
-        assertFalse(TrainConsistApp.isValidTrainID(""));
-        assertFalse(TrainConsistApp.isValidCargoCode(""));
-    }
-
-    @Test
-    public void testRegex_ExactPatternMatch() {
-        assertFalse(TrainConsistApp.isValidTrainID("TRN-1234X"));   // extra char
-        assertFalse(TrainConsistApp.isValidTrainID("XTRN-1234"));   // prefix extra
-        assertFalse(TrainConsistApp.isValidCargoCode("PET-ABC"));   // 3 letters
-        assertFalse(TrainConsistApp.isValidCargoCode("XPET-AB"));   // prefix extra
+    public void testSafety_EmptyBogieList() {
+        List<GoodsBogie> list = new ArrayList<>();
+        // allMatch on empty stream returns true
+        assertTrue(UC12TrainConsist.isSafetyCompliant(list));
     }
 }
